@@ -15,6 +15,7 @@
 *  $HA Histórico de evolução:
 *     Versão  Autor    Data     Observações
 *     
+*     1             02/out/2017 início desenvolvimento
 *
 *  $ED Descrição do módulo
 *     Implementa um grafo.
