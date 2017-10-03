@@ -5,7 +5,7 @@
 *  Arquivo gerado:              GRAFO.h
 *  Letras identificadoras:      GRF
 *
-*  Nome da base de software:    Arcabouço para a automação de testes de programas redigidos em C
+*  Nome da base de software:    
 *  Arquivo da base de software: D:\AUTOTEST\PROJETOS\GRAFO.BSW      
 *
 *  Projeto: 
