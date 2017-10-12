@@ -33,17 +33,81 @@
 
 /***********************************************************************
 *
-*  $TC Tipo de dados: GRF Elemento do Grafo
+*  $TC Tipo de dados: GRF Elemento da lista
 *
 *
 ***********************************************************************/
 
- typedef struct tagElemGrafo {
+typedef struct tagElemGrafo {
 
          struct tagElemGrafo * pAresta ;
-               /* Ponteiro para o elemento predecessor */
+               /* Ponteiro para a aresta do elemento */
 
          struct tagElemLista * pVertice ;
-               /* Ponteiro para o elemento sucessor */
+               /* Ponteiro para a lista de um só vértice, que representa o próprio vértice */
 
    } tpElemGrafo ;
+
+/***********************************************************************
+*
+*  $TC Tipo de dados: GRF Descritor da cabeça do grafo
+*
+*
+***********************************************************************/
+
+   typedef struct GRF_tagGrafo {
+
+         tpElemLista * pOrigemGrafo ;
+               /* Ponteiro para a origem da lista VerticeS */
+
+         tpElemLista * pElemCorr ;
+               /* Ponteiro para o vértice corrente */
+
+         int numElem ;
+               /* Número de elementos da lista Vértices */
+
+         void ( * ExcluirValor ) ( void * pValor ) ;
+               /* Ponteiro para a função de destruição do valor contido em um elemento */
+
+   } GRF_tpGrafo ;
+
+
+   /***** Protótipos das funções encapuladas no módulo *****/
+
+   static void LiberarElemento( GRF_tppGrafo   pGrafo ,
+                                tpElemGrafo  * pElem   ) ;
+
+   static tpElemGrafo * CriarElemento( LIS_tppGrafo pGrafo ,
+                                       void *       pValor  ) ;
+
+   static void LimparCabeca( LIS_tppLista pLista ) ;
+
+/*****  Código das funções exportadas pelo módulo  *****/
+
+/***************************************************************************
+*
+*  Função: GRF  &Criar grafo
+*  ****/
+
+
+
+   LIS_tppGrafo GRF_CriarGrafo(
+             void   ( * ExcluirValor ) ( void * pDado ) )
+   {
+
+	  /* cabeça do grafo é iniciada como NULL */
+      GRF_tpGrafo * pVertices = NULL ; //Ponteiro para a lista VerticeS, a lista inicial que contém todos os vértives duplamente encadeados, a cabeça do grafo aponta para seu começo
+
+      pVertices = ( GRF_tpGrafo * ) malloc( sizeof( LIS_tpLista )) ;
+      if ( pLista == NULL )
+      {
+         return NULL ;
+      } /* if */
+
+      LimparCabeca( pLista ) ;
+
+      pLista->ExcluirValor = ExcluirValor ;
+
+      return pLista ;
+
+   } /* Fim função: GRF  &Criar grafo */
