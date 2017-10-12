@@ -19,3 +19,31 @@
 *     1             02/out/2017 início desenvolvimento
 *
 ***************************************************************************/
+
+#include   <stdio.h>
+#include   <string.h>
+#include   <memory.h>
+#include   <malloc.h>
+#include   <assert.h>
+#include "LISTA.h"
+
+#define GRAFO_OWN
+#include "GRAFO.h"
+#undef GRAFO_OWN
+
+/***********************************************************************
+*
+*  $TC Tipo de dados: GRF Elemento do Grafo
+*
+*
+***********************************************************************/
+
+ typedef struct tagElemGrafo {
+
+         struct tagElemGrafo * pAresta ;
+               /* Ponteiro para o elemento predecessor */
+
+         struct tagElemLista * pVertice ;
+               /* Ponteiro para o elemento sucessor */
+
+   } tpElemGrafo ;
