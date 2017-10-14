@@ -17,7 +17,7 @@
 *
 *  $HA Histórico de evolução:
 *     Versão  Autor    Data     Observações
-*     
+*     3       tap  14/out/2017 CriarGrafo 
 *     2       tap  14/out/2017 tipo enumerado+descrições+correções  
 *     1            12/out/2017 início desenvolvimento
 *
@@ -45,7 +45,7 @@
 
 /* Tipo referência para um grafo */
 
-typedef struct GRF_tagGrafo * GRF_tppGrafo;
+typedef struct GRF_tagGrafo * GRF_tppGrafo ;
 
 /***********************************************************************
 *
@@ -73,7 +73,34 @@ typedef struct GRF_tagGrafo * GRF_tppGrafo;
 
    } GRF_tpCondRet ;
 
-   #undef GRAFO_EXT
 
-   #else
+   /***********************************************************************
+*
+*  $FC Função: GRF  &Criar grafo
+*
+*  $ED Descrição da função
+*     Cria um grafo genérico.*     
+*     Não existe identificador de tipo associado ao grafo.
+*
+*  $EP Parâmetros
+*     ExcluirValor  - ponteiro para a função que processa a
+*                     exclusão do valor referenciado pelo elemento
+*                     a ser excluído.
+*                     Ver descrição do módulo.
+*
+*  $FV Valor retornado
+*     Se executou corretamente retorna o ponteiro para o grafo.
+*     Este ponteiro será utilizado pelas funções que manipulem este grafo.
+*
+*     Se ocorreu algum erro, por exemplo falta de memória ou dados errados,
+*     a função retornará NULL.     
+*
+***********************************************************************/
+    GRF_tppGrafo GRF_CriarGrafo(
+             void   ( * ExcluirValor ) ( void * pDado ) );
+
+
+#undef GRAFO_EXT
+
+#else
 #endif
