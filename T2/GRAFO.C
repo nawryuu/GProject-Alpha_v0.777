@@ -13,9 +13,10 @@
 *
 *  $HA Histórico de evolução:
 *     Versão  Autor    Data        Observações
-*     6        tap    14/out/2017  IrVertice+correção
-*     5        tap    14/out/2017  CriarVertice 
-*     4        tap    14/out/2017  DestruirGrafo
+*     7        tap    14/out/2017  IrVertice+correção
+*     6        tap    14/out/2017  CriarVertice 
+*     5        tap    14/out/2017  DestruirGrafo
+*     4        g      13/out/2017  CriarGrafo
 *     3        tap    13/out/2017  CriarGrafo
 *     2        g      13/out/2017  Structs 
 *     1               02/out/2017  início desenvolvimento
