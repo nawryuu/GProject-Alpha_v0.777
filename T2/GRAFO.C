@@ -9,16 +9,18 @@
 *
 *  Projeto: INF1301 T2 Módulo Grafo Genérico
 *  Gestor: INF1301 PUC-Rio
-*  Autores: 
+*  Autores: tap, gsa
 *
 *  $HA Histórico de evolução:
 *     Versão  Autor    Data        Observações
+*     8        gsa    14/out/2017  DestruirGrafo+Correção
+*     8        gsa    14/out/2017  CriarAresta
 *     7        tap    14/out/2017  IrVertice+correção
 *     6        tap    14/out/2017  CriarVertice 
 *     5        tap    14/out/2017  DestruirGrafo
-*     4        g      13/out/2017  CriarGrafo v2
+*     4        gsa    13/out/2017  CriarGrafo v2
 *     3        tap    13/out/2017  CriarGrafo v1
-*     2        g      13/out/2017  Structs 
+*     2        gsa    13/out/2017  Structs 
 *     1               02/out/2017  início desenvolvimento
 *
 ***************************************************************************/
@@ -34,6 +36,10 @@
 #include "GRAFO.h"
 #undef GRAFO_OWN
 
+#define DIM_VT_LISTA   10
+
+GRF_tppGrafo * pCabeca;
+
 /***********************************************************************
 *
 *  $TC Tipo de dados: GRF Elemento da lista
@@ -43,10 +49,10 @@
 
 typedef struct tagElemGrafo {
 
-         struct LIS_tppLista * pAresta ;
+         LIS_tppLista * pAresta ;
                /* Ponteiro para a aresta do elemento */
 
-         struct LIS_tppLista * pVertice ;
+         LIS_tppLista * pVertice ;
                /* Ponteiro para a lista de um só vértice, que representa o próprio vértice */
 
    } tpElemGrafo ;
@@ -65,6 +71,7 @@ typedef struct tagElemGrafo {
 
          LIS_tppLista * pElemCorr ;
                /* Ponteiro para o vértice corrente */	
+		 void ( * ExcluirValor ) ( void * pValor ) ;
 
    } GRF_tpGrafo ;
 
@@ -92,6 +99,11 @@ typedef struct tagElemGrafo {
          return NULL ;
       } /* if */
 
+	  LIS_tppLista  * pOrig;
+	  pCab->pElemCorr = NULL;
+	  pOrig = pCab->pOrigemGrafo;
+
+
 	  /* cria a lista Vértices */
 	  pCab->pOrigemGrafo = LIS_CriarLista( ExcluirValor );
 	  pCab->pElemCorr = NULL;
@@ -101,33 +113,50 @@ typedef struct tagElemGrafo {
    } /* Fim função: GRF  &Criar grafo */
 
 
+    /***************************************************************************
+*
+*  Função: GRF  &Destruir aresta
+*  ****/
+
+
+    /***************************************************************************
+*
+*  Função: GRF  &Destruir vértice
+*  ****/
+   void GRF_DestruirVertice( tpElemGrafo * Elem ){
+
+	   LIS_DestruirLista(  Elem->pAresta );
+	   LIS_DestruirLista(  Elem->pVertice );
+	   free( Elem );
+
+
+   } /*Fim função: GRF &Destruir vértice
+
    /***************************************************************************
 *
-*  Função: LIS  &Destruir lista
+*  Função: GRF  &Destruir grafo
 *  ****/
 
    void GRF_DestruirGrafo( GRF_tppGrafo pCab )
    {
-	  LIS_tppLista * elem;
+	  
+	  tpElemGrafo *valor;
+	  LIS_tpCondRet Resultado;
       #ifdef _DEBUG
          assert( pCab != NULL ) ;
       #endif
-	 elem = pCab->pOrigemGrafo;
+	
 	 /*precisa percorrer a lista Vertices destruindo as arestas e vértices para depois do while destruir a lista Vertices */
-      while(elem != NULL){
-		  /* FALTA DIVIDIR EM MAIS 2 OUTRAS FUNÇÕES */
-		  LIS_DestruirLista( elem->valor->pAresta ); 
-          LIS_DestruirLista( elem->valor->vertice );
-		  elem += sizeof( LIS_tppLista ); 
-	  }
-	  
+	 for(valor = LIS_ObterValor( pCab->pOrigemGrafo ); valor !=NULL; Resultado = LIS_AvancarElementoCorrente( pCab->pOrigemGrafo, 1))
+		 GRF_DestruirVertice( valor );
+	 	  
       LIS_DestruirLista( pCab->pOrigemGrafo ) ;
 
       free( pCab ) ;
 
    } /* Fim função: LIS  &Destruir lista */
 
-   
+      
    /***************************************************************************
 *
 *  Função: GRF  &Ir vértice
@@ -143,9 +172,9 @@ typedef struct tagElemGrafo {
 *
 *  Função: GRF  &Criar vértice
 *  ****/   
-   GRF_tppGrafo GRF_CriarVertice( GRF_tppGrafo pCab, void * pValor,
-             void   ( * ExcluirValor ) ( void * pDado ) )
+   GRF_tppGrafo GRF_CriarVertice( GRF_tppGrafo pCab, void * pValor)
    {
+	  //LIS_tppLista * vtListas[ 10 ];
 	  tpElemGrafo * Elem = NULL;
 	  LIS_tpCondRet Resultado_Vertice_S;
 	  LIS_tpCondRet Resultado_Vertice;
@@ -156,7 +185,7 @@ typedef struct tagElemGrafo {
       } /* if */
 
 	  /* cria a lista Vértice, de um só nó */
-	  Elem->pVertice = LIS_CriarLista( ExcluirValor );
+	  Elem->pVertice = LIS_CriarLista( pCab->ExcluirValor );
 	  /*condições de retorno*/
 	  Resultado_Vertice = LIS_InserirElementoApos( Elem->pVertice, pValor);	  
 	  Resultado_Vertice_S = LIS_InserirElementoApos( pCab->pOrigemGrafo, Elem );
@@ -167,6 +196,45 @@ typedef struct tagElemGrafo {
       return pCab;
 
    } /* Fim função: GRF  &Criar vértice */
+
+   /***************************************************************************
+ *
+ *  Função: GRF  &Criar Aresta
+ *  ****/
+ 
+ //A função vai pegar dois vértices e vai formar uma aresta entre eles
+ void GRF_CriarAresta( tpElemGrafo * pVertice1, tpElemGrafo * pVertice2, void ( * ExcluirValor ) ( void * pValor ) )
+ {
+ 	tpElemGrafo *Elem1 = pVertice1; 
+ 	tpElemGrafo *Elem2 = pVertice2;
+ 	LIS_tpCondRet Resultado_Aresta1;
+ 	LIS_tpCondRet Resultado_Aresta2;
+ 	
+ 	#ifdef _DEBUG
+ 	assert( Elem1->pVertice != NULL && Elem2->pVertice != NULL );
+ 	#endif
+ 
+ 	
+ 	//Criando lista de aresta em Elem1 caso ela não exista
+ 	if ( Elem1->pAresta == NULL )
+ 	{
+ 		Elem1->pAresta = LIS_CriarLista( ExcluirValor );
+ 	} /* if */
+ 	//Criando lista de aresta em Elem2 caso ela não exista
+ 	if ( Elem2->pAresta == NULL ){
+ 		Elem2->pAresta = LIS_CriarLista( ExcluirValor );
+ 	 } /* if */
+ 	//Verifica se a aresta já existe, caso não exista adiciona elemento nas listas de arestas dos dois elementos
+ 	if ( LIS_ProcurarValor ( Elem1->pAresta , Elem2 ) == LIS_CondRetNaoAchou )
+ 	{
+ 		if ( LIS_ProcurarValor ( Elem2->pAresta , Elem1 ) == LIS_CondRetNaoAchou )
+ 		{
+ 			Resultado_Aresta1 = LIS_InserirElementoApos( Elem1->pAresta, Elem2);	
+ 			Resultado_Aresta2 = LIS_InserirElementoApos( Elem2->pAresta, Elem1);
+ 		} /* if */
+ 	} /* if */
+ }
+ 	/* Fim função: GRF &Criar Aresta */
 
    /***************************************************************************
 *
