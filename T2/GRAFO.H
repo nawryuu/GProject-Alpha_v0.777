@@ -13,7 +13,7 @@
 *
 *  Projeto: INF 1301 Implementação de um Grafo Genérico
 *  Gestor:  INF 1301 PUC-Rio
-*  Autores: g  ,tap
+*  Autores: gsa  ,tap
 *
 *  $HA Histórico de evolução:
 *     Versão  Autor    Data     Observações
