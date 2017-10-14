@@ -145,7 +145,7 @@ typedef struct tagElemGrafo {
    GRF_tppGrafo GRF_CriarVertice( GRF_tppGrafo pCab, void * pValor,
              void   ( * ExcluirValor ) ( void * pDado ) )
    {
-	  tpElemGrafo * Elem == NULL;
+	  tpElemGrafo * Elem = NULL;
 	  LIS_tpCondRet Resultado_Vertice_S;
 	  LIS_tpCondRet Resultado_Vertice;
       Elem = ( tpElemGrafo * ) malloc( sizeof( tpElemGrafo )) ;
