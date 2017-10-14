@@ -57,10 +57,10 @@ typedef struct tagElemGrafo {
 
    typedef struct GRF_tagGrafo {
 
-         tpElemLista * pOrigemGrafo ;
+         LIS_tppLista * pOrigemGrafo ;
                /* Ponteiro para a origem da lista VerticeS */
 
-         tpElemLista * pElemCorr ;
+         LIS_tppLista * pElemCorr ;
                /* Ponteiro para o vértice corrente */	
 
    } GRF_tpGrafo ;
@@ -89,10 +89,9 @@ typedef struct tagElemGrafo {
 *  Função: GRF  &Criar grafo
 *  ****/
 
-   LIS_tppGrafo GRF_CriarGrafo(
+   GRF_tpGrafo GRF_CriarGrafo(
              void   ( * ExcluirValor ) ( void * pDado ) )
    {
-
 	  /* cabeça do grafo é iniciada como NULL */
       GRF_tpGrafo * pCab = NULL; //Ponteiro para a lista VerticeS, a lista inicial que contém todos os vértives duplamente encadeados, a cabeça do grafo aponta para seu começo
 
@@ -109,3 +108,29 @@ typedef struct tagElemGrafo {
       return pCab;
 
    } /* Fim função: GRF  &Criar grafo */
+
+
+   /***************************************************************************
+*
+*  Função: LIS  &Destruir lista
+*  ****/
+
+   void GRF_DestruirGrafo( GRF_tpGrafo pCab )
+   {
+	  LIS_tppLista *elem;
+      #ifdef _DEBUG
+         assert( pCab != NULL ) ;
+      #endif
+	 elem = pCab->pOrigemGrafo;
+	 /*precisa percorrer a lista Vertices destruindo as arestas e vértices para depois do while destruir a lista Vertices */
+      while(elem != NULL){
+		  /* FALTA DIVIDIR EM MAIS 2 OUTRAS FUNÇÕES */
+		  LIS_DestruirLista( elem->valor->pAresta ); 
+          LIS_DestruirLista( elem->valor->vertice );
+		  elem += sizeof( LIS_tppLista ); 
+	  }
+      LIS_DestruirLista( elem ) ;
+
+      free( pCab ) ;
+
+   } /* Fim função: LIS  &Destruir lista */
