@@ -7,12 +7,13 @@
 *  Nome da base de software:    
 *  Arquivo da base de software: D:\AUTOTEST\PROJETOS\GRAFO.BSW
 *
-*  Projeto: 
-*  Gestor: 
+*  Projeto: INF1301 T2 Módulo Grafo Genérico
+*  Gestor: INF1301 PUC-Rio
 *  Autores: 
 *
 *  $HA Histórico de evolução:
 *     Versão  Autor    Data        Observações
+*     6        tap    14/out/2017  IrVertice+correção
 *     5        tap    14/out/2017  CriarVertice 
 *     4        tap    14/out/2017  DestruirGrafo
 *     3        tap    13/out/2017  CriarGrafo
@@ -67,15 +68,6 @@ typedef struct tagElemGrafo {
    } GRF_tpGrafo ;
 
 
-   /***** Protótipos das funções encapuladas no módulo *****/
-
-   static void LiberarElemento( GRF_tppGrafo   pGrafo ,
-                                tpElemGrafo  * pElem   ) ;
-
-   static tpElemGrafo * CriarElemento( LIS_tppGrafo pGrafo ,
-                                       void *       pValor  ) ;
-
-   static void LimparCabeca( LIS_tppLista pLista ) ;
 
 /*****  Código das funções exportadas pelo módulo  *****/
 
@@ -87,7 +79,7 @@ typedef struct tagElemGrafo {
 *  Função: GRF  &Criar grafo
 *  ****/
 
-   GRF_tpGrafo GRF_CriarGrafo(
+   GRF_tppGrafo GRF_CriarGrafo(
              void   ( * ExcluirValor ) ( void * pDado ) )
    {
 	  /* cabeça do grafo é iniciada como NULL */
@@ -113,9 +105,9 @@ typedef struct tagElemGrafo {
 *  Função: LIS  &Destruir lista
 *  ****/
 
-   void GRF_DestruirGrafo( GRF_tpGrafo pCab )
+   void GRF_DestruirGrafo( GRF_tppGrafo pCab )
    {
-	  LIS_tppLista *elem;
+	  LIS_tppLista * elem;
       #ifdef _DEBUG
          assert( pCab != NULL ) ;
       #endif
@@ -127,21 +119,33 @@ typedef struct tagElemGrafo {
           LIS_DestruirLista( elem->valor->vertice );
 		  elem += sizeof( LIS_tppLista ); 
 	  }
-      LIS_DestruirLista( elem ) ;
+	  
+      LIS_DestruirLista( pCab->pOrigemGrafo ) ;
 
       free( pCab ) ;
 
    } /* Fim função: LIS  &Destruir lista */
 
+   
+   /***************************************************************************
+*
+*  Função: GRF  &Ir vértice
+*  ****/   
+
+   void IrVertice ( GRF_tpGrafo * pCab, LIS_tppLista * Vertice ){
+	   
+	   pCab->pElemCorr = Vertice;
+
+   } /* Fim função: GRF &Ir vértice
+
    /***************************************************************************
 *
 *  Função: GRF  &Criar vértice
-*  ****/
-
-   GRF_tpGrafo GRF_CriarVertice( GRF_tpGrafo pCab, void * pValor
+*  ****/   
+   GRF_tppGrafo GRF_CriarVertice( GRF_tppGrafo pCab, void * pValor,
              void   ( * ExcluirValor ) ( void * pDado ) )
    {
-	  tpElemGrafo * Elem;
+	  tpElemGrafo * Elem == NULL;
 	  LIS_tpCondRet Resultado_Vertice_S;
 	  LIS_tpCondRet Resultado_Vertice;
       Elem = ( tpElemGrafo * ) malloc( sizeof( tpElemGrafo )) ;
@@ -150,12 +154,13 @@ typedef struct tagElemGrafo {
          return NULL ;
       } /* if */
 
-	  /* cria a lista Vértice */
+	  /* cria a lista Vértice, de um só nó */
 	  Elem->pVertice = LIS_CriarLista( ExcluirValor );
-	  Resultado_Vertice = LIS_InserirElementoApos( Elem->Vertice, pDado);	  
+	  /*condições de retorno*/
+	  Resultado_Vertice = LIS_InserirElementoApos( Elem->pVertice, pValor);	  
 	  Resultado_Vertice_S = LIS_InserirElementoApos( pCab->pOrigemGrafo, Elem );
 
-	  /*Atualiza o ElemCorr da cabeça do grafo */
+	  /*Atualiza o ElemCorr da cabeça do grafo, vai para o vértice recém criado */
 	  IrVertice(pCab, Elem->pVertice);
       
       return pCab;
@@ -164,10 +169,10 @@ typedef struct tagElemGrafo {
 
    /***************************************************************************
 *
-*  Função: LIS  &Obter referência para o valor contido no elemento
+*  Função: GRF  &Obter referência para o vértice contido na lista Vértices
 *  ****/
 
-   void * GRF_ObterCorrente( GRF_tpGrafo pCab )
+   void * GRF_ObterCorrente( GRF_tppGrafo pCab )
    {
 
       #ifdef _DEBUG
@@ -181,4 +186,4 @@ typedef struct tagElemGrafo {
 
       return pCab->pElemCorr;
 
-   } /* Fim função: LIS  &Obter referência para o valor contido no elemento */
+   } /* Fim função: GRF  &Obter referência para o vértice contido na lista Vértices */
