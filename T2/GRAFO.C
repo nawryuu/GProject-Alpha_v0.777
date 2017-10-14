@@ -13,7 +13,7 @@
 *
 *  $HA Histórico de evolução:
 *     Versão  Autor    Data        Observações
-*     8        gsa    14/out/2017  DestruirGrafo+Correção
+*     9        gsa    14/out/2017  DestruirGrafo+Correção
 *     8        gsa    14/out/2017  CriarAresta
 *     7        tap    14/out/2017  IrVertice+correção
 *     6        tap    14/out/2017  CriarVertice 
