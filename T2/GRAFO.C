@@ -12,11 +12,12 @@
 *  Autores: 
 *
 *  $HA Histórico de evolução:
-*     Versão  Autor    Data     Observações
-*     
-*     
-*     
-*     1          02/out/2017 início desenvolvimento
+*     Versão  Autor    Data        Observações
+*     5        tap    14/out/2017  CriarVertice 
+*     4        tap    14/out/2017  DestruirGrafo
+*     3        tap    13/out/2017  CriarGrafo
+*     2        g      13/out/2017  Structs 
+*     1               02/out/2017  início desenvolvimento
 *
 ***************************************************************************/
 
@@ -80,9 +81,6 @@ typedef struct tagElemGrafo {
 
 
 /***********************************************************/
-   void exclui(void *dado){
-	   dado = NULL;
-   }
 
 /***************************************************************************
 *
@@ -134,3 +132,53 @@ typedef struct tagElemGrafo {
       free( pCab ) ;
 
    } /* Fim função: LIS  &Destruir lista */
+
+   /***************************************************************************
+*
+*  Função: GRF  &Criar vértice
+*  ****/
+
+   GRF_tpGrafo GRF_CriarVertice( GRF_tpGrafo pCab, void * pValor
+             void   ( * ExcluirValor ) ( void * pDado ) )
+   {
+	  tpElemGrafo * Elem;
+	  LIS_tpCondRet Resultado_Vertice_S;
+	  LIS_tpCondRet Resultado_Vertice;
+      Elem = ( tpElemGrafo * ) malloc( sizeof( tpElemGrafo )) ;
+      if ( Elem == NULL )
+      {
+         return NULL ;
+      } /* if */
+
+	  /* cria a lista Vértice */
+	  Elem->pVertice = LIS_CriarLista( ExcluirValor );
+	  Resultado_Vertice = LIS_InserirElementoApos( Elem->Vertice, pDado);	  
+	  Resultado_Vertice_S = LIS_InserirElementoApos( pCab->pOrigemGrafo, Elem );
+
+	  /*Atualiza o ElemCorr da cabeça do grafo */
+	  IrVertice(pCab, Elem->pVertice);
+      
+      return pCab;
+
+   } /* Fim função: GRF  &Criar vértice */
+
+   /***************************************************************************
+*
+*  Função: LIS  &Obter referência para o valor contido no elemento
+*  ****/
+
+   void * GRF_ObterCorrente( GRF_tpGrafo pCab )
+   {
+
+      #ifdef _DEBUG
+         assert( pCab != NULL ) ;
+      #endif
+
+      if ( pCab->pElemCorr == NULL )
+      {
+        return NULL ;
+      } /* if */
+
+      return pCab->pElemCorr;
+
+   } /* Fim função: LIS  &Obter referência para o valor contido no elemento */
