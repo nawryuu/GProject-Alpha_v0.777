@@ -13,7 +13,7 @@
 *
 *  Projeto: INF 1301 Implementação de um Grafo Genérico
 *  Gestor:  INF 1301 PUC-Rio
-*  Autores: gsa  ,tap
+*  Autores: g  ,tap
 *
 *  $HA Histórico de evolução:
 *     Versão  Autor    Data     Observações
@@ -79,7 +79,7 @@ typedef struct GRF_tagGrafo * GRF_tppGrafo ;
 *  $FC Função: GRF  &Criar grafo
 *
 *  $ED Descrição da função
-*     Cria um grafo genérico.*     
+*     Cria um grafo genérico.     
 *     Não existe identificador de tipo associado ao grafo.
 *
 *  $EP Parâmetros
@@ -98,6 +98,25 @@ typedef struct GRF_tagGrafo * GRF_tppGrafo ;
 ***********************************************************************/
     GRF_tppGrafo GRF_CriarGrafo(
              void   ( * ExcluirValor ) ( void * pDado ) );
+
+	 /***********************************************************************
+*
+*  $FC Função: GRF  &Destruir aresta
+*
+*  $ED Descrição da função
+*     Destroi uma aresta do grafo.   
+*     *
+*  $EP Parâmetros
+*     pCab       -ponteiro para uma cabeça de grafo
+*     pValor     -endereço da aresta que será do removida do nó corrente 
+*
+*  $FV Valor retornado
+*     Se executou corretamente retorna GRF_tpCondRetOK
+*     Caso o grafo esteja vazio retorna GRF_tpCondRetGrafoVazio
+* 
+*
+***********************************************************************/
+    GRF_tpCondRet GRF_DestruirAresta( GRF_tppGrafo pCab, void * pValor);
 
 
 #undef GRAFO_EXT
