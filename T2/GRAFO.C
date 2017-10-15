@@ -13,7 +13,7 @@
 *
 *  $HA Histórico de evolução:
 *     Versão  Autor    Data        Observações
-*     
+*     11       tap    15/out/2017  CorreçõesCriarAresta/ObterCorrente
 *     10       tap    14/out/2017  CorreçõesNosStructs
 *     9        gsa    14/out/2017  DestruirGrafo+Correção
 *     8        gsa    14/out/2017  CriarAresta
@@ -96,9 +96,7 @@ typedef struct tagElemGrafo {
       if ( pCab == NULL )
       {
          return NULL ;
-      } /* if */
-
-	  
+      } /* if */	  
 
 	  /* cria a lista Vértices */
 	  pCab->pOrigemGrafo = LIS_CriarLista( ExcluirValor );
@@ -113,7 +111,7 @@ typedef struct tagElemGrafo {
 *
 *  Função: GRF  &Destruir aresta
 *  ****/
-    void * GRF_DestruirAresta( GRF_tppGrafo pCab, void *pValor )
+    GRF_tpCondRet GRF_DestruirAresta( GRF_tppGrafo pCab, void *pValor )
     {
  	
        #ifdef _DEBUG
@@ -122,24 +120,25 @@ typedef struct tagElemGrafo {
  
        if ( pCab->pElemCorr == NULL )
        {
-       	return NULL ;
+       	return GRF_CondRetGrafoVazio ;
        } /* if */
        
-       GRF_tppGrafo *Vertice1 = pCab->pElemCorr;
-       GRF_tppGrafo *Vertice2 ;
+       tpElemGrafo *Vertice1 = pCab->pElemCorr;
+       tpElemGrafo *Vertice2 ;
      
        while( pCab->pElemCorr != NULL)
        {
- 	      if ( LIS_ObterValor ( pCab->pElemCorr )== pValor)
+ 	      if ( pCab->pElemCorr->pVertice == pValor)
  	      {
- 		      Vertice2 = pCab->pElemCorr;
+ 		      Vertice2 = LIS_ObterValor( pCab->pOrigemGrafo );
  	      }
- 	      LIS_AvancarElementoCorrente ( pCab, 1 ) ;
+ 	      LIS_AvancarElementoCorrente ( pCab->pOrigemGrafo, 1 ) ;
        }
        LIS_ProcurarValor( Vertice1->pAresta, LIS_ObterValor (Vertice2) ) ;
        LIS_ExcluirElemento( Vertice1 ) ;	   
        LIS_ProcurarValor( Vertice2->pAresta, LIS_ObterValor (Vertice1) ) ;
        
+	   return GRF_CondRetOK;
  	  // (INCOMPLETA)
  	   
     } /* Fim função: GRF  &Obter referência para o vértice contido na lista Vértices */
@@ -195,34 +194,34 @@ typedef struct tagElemGrafo {
 *  Função: GRF  &Ir vértice
 *  ****/   
 
-   void IrVertice ( GRF_tpGrafo * pCab, void * Vertice ){
+   //void IrVertice ( GRF_tpGrafo * pCab, void * Vertice ){
 	   
-	   pCab->pElemCorr = Vertice;
+	  // pCab->pElemCorr = Vertice;
 
-   } /* Fim função: GRF &Ir vértice
+  // } /* Fim função: GRF &Ir vértice
 
    /***************************************************************************
 *
 *  Função: GRF  &Criar vértice
 *  ****/   
-   GRF_tppGrafo GRF_CriarVertice( GRF_tppGrafo pCab, void * pValor)
+   GRF_tpCondRet GRF_CriarVertice( GRF_tppGrafo pCab, void * pValor)
    {	  
 	  tpElemGrafo * Elem = NULL;
 	  LIS_tpCondRet Resultado_Vertice_S;	  
       Elem = ( tpElemGrafo * ) malloc( sizeof( tpElemGrafo )) ;
       if ( Elem == NULL )
       {
-         return NULL ;
+         return GRF_CondRetFaltouMemoria ;
       } /* if */
-
-	  /* cria a lista Vértice, de um só nó */
+	  	 
 	  Elem->pVertice = pValor; 
+	  Elem->pAresta = NULL;
 	  /*Inserção na lista de Vértices*/	  
 	  Resultado_Vertice_S = LIS_InserirElementoApos( pCab->pOrigemGrafo, Elem );
 
 	  /*Atualiza o ElemCorr da cabeça do grafo, vai para o vértice recém criado */	 
       pCab->pElemCorr = Elem;
-      return pCab;
+      return GRF_CondRetOK;
 
    } /* Fim função: GRF  &Criar vértice */
 
@@ -230,9 +229,37 @@ typedef struct tagElemGrafo {
  *
  *  Função: GRF  &Criar Aresta
  *  ****/
- 
+ GRF_tpCondRet GRF_CriarAresta ( GRF_tppGrafo pCab, void * pValor, void   ( * ExcluirValor ) ( void * pDado ) ){
+
+	 LIS_tpCondRet Resultado_1;
+	 LIS_tpCondRet Resultado_2;
+
+	 LIS_tppLista ArestasDoElemAdicionado;
+
+	 if (pCab == NULL || pCab->pElemCorr == NULL){
+		 return GRF_CondRetGrafoVazio;
+	 }
+
+	 if( pCab->pElemCorr->pAresta == NULL )
+		 pCab->pElemCorr->pAresta = LIS_CriarLista( ExcluirValor );
+
+	 Resultado_1 = LIS_ProcurarValor( pCab->pElemCorr->pAresta, pValor );
+	 
+	 Resultado_2 = LIS_ProcurarValor(  , pCab->pElemCorr->pVertice);
+
+	 if ( Resultado_1 == LIS_CondRetOK)
+		 return GRF_CondRetValorRepetido;
+	 /*como o elemento ainda não está na lista de arestas, ele é inserido */
+	 LIS_InserirElementoApos( pCab->pElemCorr->pAresta, pValor ); 
+
+	 /* obter a lista de arestas do outro elemento */ 
+	 
+	// while(LIS_ObterValor(pCab->pOrigemGrafo) != pCab->pElemCorr );
+
+
+ }
  //A função vai pegar dois vértices e vai formar uma aresta entre eles
- void GRF_CriarAresta( tpElemGrafo * pVertice1, tpElemGrafo * pVertice2, void ( * ExcluirValor ) ( void * pValor ) )
+ void GRF_CriarAresta2( tpElemGrafo * pVertice1, tpElemGrafo * pVertice2, void ( * ExcluirValor ) ( void * pValor ) )
  {
  	tpElemGrafo *Elem1 = pVertice1; 
  	tpElemGrafo *Elem2 = pVertice2;
@@ -269,7 +296,7 @@ typedef struct tagElemGrafo {
 *  Função: GRF  &Obter referência para o vértice contido na lista Vértices
 *  ****/
 
-   tpElemGrafo GRF_ObterCorrente( GRF_tppGrafo pCab )
+   void * GRF_ObterCorrente( GRF_tppGrafo pCab )
    {
 
       #ifdef _DEBUG
