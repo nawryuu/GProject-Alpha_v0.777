@@ -13,6 +13,8 @@
 *
 *  $HA Histórico de evolução:
 *     Versão  Autor    Data        Observações
+*     
+*     10       tap    14/out/2017  CorreçõesNosStructs
 *     9        gsa    14/out/2017  DestruirGrafo+Correção
 *     8        gsa    14/out/2017  CriarAresta
 *     7        tap    14/out/2017  IrVertice+correção
@@ -33,12 +35,9 @@
 #include "LISTA.h"
 
 #define GRAFO_OWN
-#include "GRAFO.h"
+#include "GRAFO2.h"
 #undef GRAFO_OWN
 
-#define DIM_VT_LISTA   10
-
-GRF_tppGrafo * pCabeca;
 
 /***********************************************************************
 *
@@ -49,10 +48,10 @@ GRF_tppGrafo * pCabeca;
 
 typedef struct tagElemGrafo {
 
-         LIS_tppLista * pAresta ;
+         LIS_tppLista pAresta ;
                /* Ponteiro para a aresta do elemento */
 
-         LIS_tppLista * pVertice ;
+         LIS_tppLista pVertice ;
                /* Ponteiro para a lista de um só vértice, que representa o próprio vértice */
 
    } tpElemGrafo ;
@@ -66,10 +65,10 @@ typedef struct tagElemGrafo {
 
    typedef struct GRF_tagGrafo {
 
-         LIS_tppLista * pOrigemGrafo ;
+         LIS_tppLista pOrigemGrafo ;
                /* Ponteiro para a origem da lista VerticeS */
 
-         LIS_tppLista * pElemCorr ;
+         LIS_tppLista pElemCorr ;
                /* Ponteiro para o vértice corrente */	
 		 void ( * ExcluirValor ) ( void * pValor ) ;
 
@@ -99,10 +98,7 @@ typedef struct tagElemGrafo {
          return NULL ;
       } /* if */
 
-	  LIS_tppLista  * pOrig;
-	  pCab->pElemCorr = NULL;
-	  pOrig = pCab->pOrigemGrafo;
-
+	  
 
 	  /* cria a lista Vértices */
 	  pCab->pOrigemGrafo = LIS_CriarLista( ExcluirValor );
@@ -118,6 +114,12 @@ typedef struct tagElemGrafo {
 *  Função: GRF  &Destruir aresta
 *  ****/
 
+   GRF_tpCondRet GRF_DestruirAresta( GRF_tppGrafo pCab, void * pValor){
+
+
+	   
+
+   }
 
     /***************************************************************************
 *
@@ -162,7 +164,7 @@ typedef struct tagElemGrafo {
 *  Função: GRF  &Ir vértice
 *  ****/   
 
-   void IrVertice ( GRF_tpGrafo * pCab, LIS_tppLista * Vertice ){
+   void IrVertice ( GRF_tpGrafo * pCab, LIS_tppLista Vertice ){
 	   
 	   pCab->pElemCorr = Vertice;
 
@@ -212,8 +214,7 @@ typedef struct tagElemGrafo {
  	
  	#ifdef _DEBUG
  	assert( Elem1->pVertice != NULL && Elem2->pVertice != NULL );
- 	#endif
- 
+ 	#endif 
  	
  	//Criando lista de aresta em Elem1 caso ela não exista
  	if ( Elem1->pAresta == NULL )
