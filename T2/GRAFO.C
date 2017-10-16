@@ -116,37 +116,51 @@ typedef struct tagElemGrafo {
 *  ****/
     GRF_tpCondRet GRF_DestruirAresta( GRF_tppGrafo pCab, void *pValor )
     {
- 	
-       #ifdef _DEBUG
-          assert( pCab != NULL ) ;
-       #endif
+ 	LIS_tpCondRet Resultado;
+	GRF_tpCondRet Resultado_G
+	/* Verifica se o grafo existe */
+	if (pCab == NULL)
+		return GRF_CondRetGrafoNaoExiste;
  
        IrInicioLista( pCab->pOrigemGrafo );
-
+	
+	/* Verifica se o grafo está vazio */   
        if ( pCab->pElemCorr == NULL )
-       {
-       	return GRF_CondRetGrafoVazio ;
-       } /* if */
+       		return GRF_CondRetGrafoVazio ;
+        /* if */
        
-       tpElemGrafo *Vertice1 = pCab->pElemCorr;
-       tpElemGrafo *Vertice2 ;
-     
-       while( pCab->pElemCorr != NULL)
-       {
- 	      if ( pCab->pElemCorr->pVertice == pValor)
- 	      {
- 		      Vertice2 = LIS_ObterValor( pCab->pOrigemGrafo );
- 	      }
- 	      LIS_AvancarElementoCorrente ( pCab->pOrigemGrafo, 1 ) ;
-       }
-       LIS_ProcurarValor( Vertice1->pAresta, LIS_ObterValor (Vertice2) ) ;
-       LIS_ExcluirElemento( Vertice1 ) ;	   
-       LIS_ProcurarValor( Vertice2->pAresta, LIS_ObterValor (Vertice1) ) ;
+       tpElemGrafo *Vertice1 = pCab->pElemCorr ;
+       
+       Resultado_G = IrVertice ( pCab, pValor);
+	    if( Resultado_G == GRF_CondRetNaoAchou)
+		    return GRF_CondRetNaoAchou ;
+       
+       tpElemGrafo *Vertice2 = pCab->pElemCorr ;
+       
+       /* Procura o vertice 2 na lista de arestas do vertice 1 */   
+       Resultado = LIS_ProcurarValor( Vertice1->pAresta, Vertice2 ) ;
+       if ( Resultado == LIS_CondRetNaoEncontrou)
+	       return LIS_CondRetNaoEncontrou;
+       if ( Resultado ==  LIS_CondRetListaVazia)
+	       return  LIS_CondRetListaVazia;
+	    
+	    
+	/* Exclui elemento vertice2 da lista de arestas do vertice 1 */    
+       LIS_ExcluirElemento( Vertice1->pAresta ) ;
+	    
+       /* Procura o vertice 1 na lista de arestas do vertice 2 */
+       LIS_ProcurarValor( Vertice2->pAresta, Vertice1 ) ;
+       if ( Resultado == LIS_CondRetNaoEncontrou)
+	       return LIS_CondRetNaoEncontrou ;
+       if ( Resultado ==  LIS_CondRetListaVazia)
+	       return LIS_CondRetListaVazia ;
+       /* Exclui o Vertice 1 da lista de arestas do vertice 2 */
+       LIS_ExcluirElemento( Vertice2->pAresta ) ;
+	
        
 	   return GRF_CondRetOK;
- 	  // (INCOMPLETA)
  	   
-    } /* Fim função: GRF  &Obter referência para o vértice contido na lista Vértices */
+    } /* Fim função: GRF  &Destruir aresta */
 	 
     /***************************************************************************
 *
@@ -155,14 +169,24 @@ typedef struct tagElemGrafo {
    GRF_tpCondRet GRF_DestruirVerticeCorrente( GRF_tppGrafo pCab ){
 	   LIS_tpCondRet Resultado_Avancar;
 	   LIS_tpCondRet Resultado_Excluir;
+	   
+	   /* Verifica se o grafo existe */
+	   if (pCab == NULL)
+		return GRF_CondRetGrafoNaoExiste;
+	    /* Verifica se o grafo é vazio */
+	   if (pCab->pElemCorr == NULL);
+	   	return GRF_CondRetGrafoVazio;
 
 	   IrInicioLista( pCab->pOrigemGrafo );
 
-	   free(pCab->pElemCorr->pVertice);
+	   pCab->pElemCorr->pVertice = NULL;
 	   LIS_DestruirLista( pCab->pElemCorr->pAresta );
 
 	   while(LIS_ObterValor(pCab->pOrigemGrafo) != pCab->pElemCorr)
+	   {
 		Resultado_Avancar = LIS_AvancarElementoCorrente( pCab->pOrigemGrafo , 1 );
+		   
+	   }
 	   /* chegou no elemento corrente */
 	   Resultado_Excluir = LIS_ExcluirElemento(pCab->pOrigemGrafo);
 	   
@@ -176,16 +200,16 @@ typedef struct tagElemGrafo {
 *  Função: GRF  &Destruir grafo
 *  ****/
 
-   void GRF_DestruirGrafo( GRF_tppGrafo pCab )
+   GRF_tpCondRet GRF_DestruirGrafo( GRF_tppGrafo pCab )
    {
-	  IrInicioLista( pCab->pOrigemGrafo );
-
 	  tpElemGrafo *valor;
 	  LIS_tpCondRet Resultado;
-      #ifdef _DEBUG
-         assert( pCab != NULL ) ;
-      #endif
-	
+	   
+	  if (pCab == NULL || pCab->pElemCorr == NULL){
+		 return GRF_CondRetGrafoNaoExiste;
+	 }
+	  IrInicioLista( pCab->pOrigemGrafo );
+	   
 	 /*precisa percorrer a lista Vertices destruindo as arestas e vértices para depois do while destruir a lista Vertices */
 	 while(pCab->pOrigemGrafo != NULL )
 		 GRF_DestruirVerticeCorrente( pCab );
@@ -193,6 +217,8 @@ typedef struct tagElemGrafo {
       LIS_DestruirLista( pCab->pOrigemGrafo ) ;
 
       free( pCab ) ;
+	   
+	return GRF_CondRetOK;
 
    } /* Fim função: LIS  &Destruir lista */
 
@@ -205,6 +231,10 @@ typedef struct tagElemGrafo {
    GRF_tpCondRet IrVertice ( GRF_tpGrafo * pCab, void * pValor ){
 
 	   LIS_tpCondRet Resultado;
+	   
+	    if (pCab == NULL || pCab->pElemCorr == NULL){
+		 return GRF_CondRetGrafoNaoExiste;
+	 }
 
 	   IrInicioLista( pCab->pOrigemGrafo );
 
@@ -222,9 +252,13 @@ typedef struct tagElemGrafo {
 *
 *  Função: GRF  &Criar vértice
 *  ****/   
-   GRF_tpCondRet GRF_CriarVertice( GRF_tppGrafo pCab, void * pValor)
+   GRF_tpCondRet GRF_CriarVertice( GRF_tppGrafo pCab, void * pValor,  void   ( * ExcluirValor ) ( void * pDado ) )
    {	  
-	   IrInicioLista( pCab->pOrigemGrafo );
+	  IrInicioLista( pCab->pOrigemGrafo );
+	   
+	   if (pCab == NULL || pCab->pElemCorr == NULL){
+		 return GRF_CondRetGrafoNaoExiste;
+	 }
 
 	  tpElemGrafo * Elem = NULL;
 	  LIS_tpCondRet Resultado_Vertice_S;	  
@@ -234,14 +268,20 @@ typedef struct tagElemGrafo {
          return GRF_CondRetFaltouMemoria ;
       } /* if */
 	  	 
-	  Elem->pVertice = pValor; 
-	  Elem->pAresta = NULL;
+	   Elem->pVertice = pValor; 
+	   Elem->pAresta = LIS_CriarLista( ExcluirValor );
+	  
+	   /* Verifica se a criação da lista aresta deu certo */
+	   if ( Elem->pAresta == NULL )
+		  return GRF_CondRetFaltouMemoria;
+	   
 	  /*Inserção na lista de Vértices*/	  
-	  Resultado_Vertice_S = LIS_InserirElementoApos( pCab->pOrigemGrafo, Elem );
+	   Resultado_Vertice_S = LIS_InserirElementoApos( pCab->pOrigemGrafo, Elem );
 
 	  /*Atualiza o ElemCorr da cabeça do grafo, vai para o vértice recém criado */	 
-      pCab->pElemCorr = Elem;
-      return GRF_CondRetOK;
+           pCab->pElemCorr = Elem;
+      
+	   return GRF_CondRetOK;
 
    } /* Fim função: GRF  &Criar vértice */
       
@@ -249,34 +289,35 @@ typedef struct tagElemGrafo {
  *
  *  Função: GRF  &Criar Aresta
  *  ****/
- GRF_tpCondRet GRF_CriarAresta ( GRF_tppGrafo pCab, void * pValor, void   ( * ExcluirValor ) ( void * pDado ) ){
+ GRF_tpCondRet GRF_CriarAresta ( GRF_tppGrafo pCab, void * pValor){
 
-	 LIS_tpCondRet Resultado_1;
-	 LIS_tpCondRet Resultado_2;
-
+	 GRF_tpCondRet Resultado_G;
+	 LIS_tpCondRet Resultad;
 	 tpElemGrafo* SalvaCorrente;
-	 	
+	 tpElemGrafo *Vertice2;
+	 
 	 if (pCab == NULL || pCab->pElemCorr == NULL){
 		 return GRF_CondRetGrafoVazio;
 	 }
-
-	 if( pCab->pElemCorr->pAresta == NULL )
-		 pCab->pElemCorr->pAresta = LIS_CriarLista( ExcluirValor );
-
-	 Resultado_1 = LIS_ProcurarValor( pCab->pElemCorr->pAresta, pValor );
 	 
-	 //Resultado_2 = LIS_ProcurarValor(  , pCab->pElemCorr->pVertice);
-
-	 if ( Resultado_1 == LIS_CondRetOK)
+	 tpElemGrafo *Vertice1 = pCab->pElemCorr ; 
+	 /* Obtendo o ponteiro para o Vertice 2 */
+	 Resultado = IrVertice ( pCab, pValor);
+	    if( Resultado_G == GRF_CondRetNaoAchou)
+		    return GRF_CondRetNaoAchou ;
+       
+         Vertice2 = pCab->pElemCorr ;
+	 	
+	 /* Verifica se o valor já está na lista de arestas do vértice 1*/
+	 Resultado = LIS_ProcurarValor( Vertice1->pAresta, Vertice2 ) ;
+	 if ( Resultado == LIS_CondRetOK)
 		 return GRF_CondRetValorRepetido;
-	 /*como o elemento ainda não está na lista de arestas, ele é inserido */
-	 LIS_InserirElementoApos( pCab->pElemCorr->pAresta, pValor ); 
-
-	 /* obter a lista de arestas do outro elemento */ 
-	SalvaCorrente = pCab->pElemCorr;
-	IrVertice( pCab, pValor);
-
-	LIS_InserirElementoApos( pCab->pElemCorr->pAresta, SalvaCorrente->pVertice ); 
+	 
+	 /* Se o elemento ainda não está na lista de arestas, ele é inserido nas listas de vertice 1 e 2 */
+	 LIS_InserirElementoApos( Vertice1->pAresta, Vertice2 ); 
+	 LIS_InserirElementoApos( Vertice2->pAresta, Vertice1 ); 
+	
+	 return GRF_CondRetOK;
 
  }
  	/* Fim função: GRF &Criar Aresta */
