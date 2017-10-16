@@ -13,6 +13,9 @@
 *
 *  $HA Histórico de evolução:
 *     Versão  Autor    Data        Observações
+*     14       tap    15/out/2017  IrVertice + CriarArestaCorreção
+*     13       gsa    15/out/2017  typeCasting + Correções
+*     12       tap    15/out/2017  CriarArestaCorreção
 *     11       tap    15/out/2017  CorreçõesCriarAresta/ObterCorrente
 *     10       tap    14/out/2017  CorreçõesNosStructs
 *     9        gsa    14/out/2017  DestruirGrafo+Correção
@@ -118,6 +121,8 @@ typedef struct tagElemGrafo {
           assert( pCab != NULL ) ;
        #endif
  
+       IrInicioLista( pCab->pOrigemGrafo );
+
        if ( pCab->pElemCorr == NULL )
        {
        	return GRF_CondRetGrafoVazio ;
@@ -151,6 +156,8 @@ typedef struct tagElemGrafo {
 	   LIS_tpCondRet Resultado_Avancar;
 	   LIS_tpCondRet Resultado_Excluir;
 
+	   IrInicioLista( pCab->pOrigemGrafo );
+
 	   free(pCab->pElemCorr->pVertice);
 	   LIS_DestruirLista( pCab->pElemCorr->pAresta );
 
@@ -171,7 +178,8 @@ typedef struct tagElemGrafo {
 
    void GRF_DestruirGrafo( GRF_tppGrafo pCab )
    {
-	  
+	  IrInicioLista( pCab->pOrigemGrafo );
+
 	  tpElemGrafo *valor;
 	  LIS_tpCondRet Resultado;
       #ifdef _DEBUG
@@ -194,11 +202,21 @@ typedef struct tagElemGrafo {
 *  Função: GRF  &Ir vértice
 *  ****/   
 
-   //void IrVertice ( GRF_tpGrafo * pCab, void * Vertice ){
-	   
-	  // pCab->pElemCorr = Vertice;
+   GRF_tpCondRet IrVertice ( GRF_tpGrafo * pCab, void * pValor ){
 
-  // } /* Fim função: GRF &Ir vértice
+	   LIS_tpCondRet Resultado;
+
+	   IrInicioLista( pCab->pOrigemGrafo );
+
+	   while( ((tpElemGrafo*)LIS_ObterValor(pCab->pOrigemGrafo))->pVertice != pValor )
+	   {		     
+		    Resultado = LIS_AvancarElementoCorrente( pCab->pOrigemGrafo,1);
+			if(Resultado == LIS_CondRetFimLista) 
+				return GRF_CondRetNaoAchou;
+	   }
+	   pCab->pElemCorr = (tpElemGrafo *) LIS_ObterValor( pCab->pOrigemGrafo );
+	   return GRF_CondRetOK;
+   } /* Fim função: GRF &Ir vértice
 
    /***************************************************************************
 *
@@ -206,6 +224,8 @@ typedef struct tagElemGrafo {
 *  ****/   
    GRF_tpCondRet GRF_CriarVertice( GRF_tppGrafo pCab, void * pValor)
    {	  
+	   IrInicioLista( pCab->pOrigemGrafo );
+
 	  tpElemGrafo * Elem = NULL;
 	  LIS_tpCondRet Resultado_Vertice_S;	  
       Elem = ( tpElemGrafo * ) malloc( sizeof( tpElemGrafo )) ;
@@ -224,7 +244,7 @@ typedef struct tagElemGrafo {
       return GRF_CondRetOK;
 
    } /* Fim função: GRF  &Criar vértice */
-
+      
    /***************************************************************************
  *
  *  Função: GRF  &Criar Aresta
@@ -234,8 +254,8 @@ typedef struct tagElemGrafo {
 	 LIS_tpCondRet Resultado_1;
 	 LIS_tpCondRet Resultado_2;
 
-	 LIS_tppLista ArestasDoElemAdicionado;
-
+	 tpElemGrafo* SalvaCorrente;
+	 	
 	 if (pCab == NULL || pCab->pElemCorr == NULL){
 		 return GRF_CondRetGrafoVazio;
 	 }
@@ -245,7 +265,7 @@ typedef struct tagElemGrafo {
 
 	 Resultado_1 = LIS_ProcurarValor( pCab->pElemCorr->pAresta, pValor );
 	 
-	 Resultado_2 = LIS_ProcurarValor(  , pCab->pElemCorr->pVertice);
+	 //Resultado_2 = LIS_ProcurarValor(  , pCab->pElemCorr->pVertice);
 
 	 if ( Resultado_1 == LIS_CondRetOK)
 		 return GRF_CondRetValorRepetido;
@@ -253,41 +273,11 @@ typedef struct tagElemGrafo {
 	 LIS_InserirElementoApos( pCab->pElemCorr->pAresta, pValor ); 
 
 	 /* obter a lista de arestas do outro elemento */ 
-	 
-	// while(LIS_ObterValor(pCab->pOrigemGrafo) != pCab->pElemCorr );
+	SalvaCorrente = pCab->pElemCorr;
+	IrVertice( pCab, pValor);
 
+	LIS_InserirElementoApos( pCab->pElemCorr->pAresta, SalvaCorrente->pVertice ); 
 
- }
- //A função vai pegar dois vértices e vai formar uma aresta entre eles
- void GRF_CriarAresta2( tpElemGrafo * pVertice1, tpElemGrafo * pVertice2, void ( * ExcluirValor ) ( void * pValor ) )
- {
- 	tpElemGrafo *Elem1 = pVertice1; 
- 	tpElemGrafo *Elem2 = pVertice2;
- 	LIS_tpCondRet Resultado_Aresta1;
- 	LIS_tpCondRet Resultado_Aresta2;
- 	
- 	#ifdef _DEBUG
- 	assert( Elem1->pVertice != NULL && Elem2->pVertice != NULL );
- 	#endif 
- 	
- 	//Criando lista de aresta em Elem1 caso ela não exista
- 	if ( Elem1->pAresta == NULL )
- 	{
- 		Elem1->pAresta = LIS_CriarLista( ExcluirValor );
- 	} /* if */
- 	//Criando lista de aresta em Elem2 caso ela não exista
- 	if ( Elem2->pAresta == NULL ){
- 		Elem2->pAresta = LIS_CriarLista( ExcluirValor );
- 	 } /* if */
- 	//Verifica se a aresta já existe, caso não exista adiciona elemento nas listas de arestas dos dois elementos
- 	if ( LIS_ProcurarValor ( Elem1->pAresta , Elem2 ) == LIS_CondRetNaoAchou )
- 	{
- 		if ( LIS_ProcurarValor ( Elem2->pAresta , Elem1 ) == LIS_CondRetNaoAchou )
- 		{
- 			Resultado_Aresta1 = LIS_InserirElementoApos( Elem1->pAresta, Elem2);	
- 			Resultado_Aresta2 = LIS_InserirElementoApos( Elem2->pAresta, Elem1);
- 		} /* if */
- 	} /* if */
  }
  	/* Fim função: GRF &Criar Aresta */
 
