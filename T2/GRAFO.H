@@ -13,13 +13,15 @@
 *
 *  Projeto: INF 1301 Implementação de um Grafo Genérico
 *  Gestor:  INF 1301 PUC-Rio
-*  Autores: g  ,tap
+*  Autores: gsa  ,tap
 *
 *  $HA Histórico de evolução:
 *     Versão  Autor    Data     Observações
-*     3       tap  14/out/2017 CriarGrafo 
-*     2       tap  14/out/2017 tipo enumerado+descrições+correções  
-*     1            12/out/2017 início desenvolvimento
+*     5       tap  16/out/2017  Finalização
+*     4       tap  14/out/2017  DestruirAresta
+*     3       tap  14/out/2017  CriarGrafo 
+*     2       tap  14/out/2017  tipo enumerado+descrições+correções  
+*     1            12/out/2017  início desenvolvimento
 *
 *  $ED Descrição do módulo
 *     Implementa um grafo genérico.
@@ -68,8 +70,11 @@ typedef struct GRF_tagGrafo * GRF_tppGrafo ;
          GRF_CondRetNaoAchou ,
                /* Não encontrou o vértice procurado */
 
-         GRF_CondRetFaltouMemoria
+         GRF_CondRetFaltouMemoria,
                /* Faltou memória ao tentar criar um elemento do grafo */
+		 GRF_CondRetValorRepetido,
+		      /* Houve uma tentativa de inserção de um valor repetido */
+		 GRF_CondRetGrafoNaoExiste
 
    } GRF_tpCondRet ;
 
@@ -96,8 +101,10 @@ typedef struct GRF_tagGrafo * GRF_tppGrafo ;
 *     a função retornará NULL.     
 *
 ***********************************************************************/
+
     GRF_tppGrafo GRF_CriarGrafo(
              void   ( * ExcluirValor ) ( void * pDado ) );
+
 
 	 /***********************************************************************
 *
@@ -105,18 +112,145 @@ typedef struct GRF_tagGrafo * GRF_tppGrafo ;
 *
 *  $ED Descrição da função
 *     Destroi uma aresta do grafo.   
-*     *
+*     
 *  $EP Parâmetros
 *     pCab       -ponteiro para uma cabeça de grafo
 *     pValor     -endereço da aresta que será do removida do nó corrente 
 *
 *  $FV Valor retornado
-*     Se executou corretamente retorna GRF_tpCondRetOK
-*     Caso o grafo esteja vazio retorna GRF_tpCondRetGrafoVazio
-* 
+*     GRF_CondRetOK   -Se executou corretamente
+*     GRF_CondRetGrafoVazio   -se o grafo estiver vazio 
+*     GRF_CondRetGrafoNaoExiste   -se o grafo não existe  
 *
 ***********************************************************************/
+
     GRF_tpCondRet GRF_DestruirAresta( GRF_tppGrafo pCab, void * pValor);
+
+
+	/***********************************************************************
+*
+*  $FC Função: GRF  &Destruir vértice corrente
+*
+*  $ED Descrição da função
+*     Destroi o vértice corrente do grafo 
+*     
+*  $EP Parâmetros
+*     pCab       -ponteiro para uma cabeça de grafo
+*     pValor     -endereço da aresta que será do removida do nó corrente 
+*
+*  $FV Valor retornado
+*     GRF_CondRetOK   -Se executou corretamente
+*     GRF_CondRetGrafoNaoExiste   -se o grafo não existe  
+*
+***********************************************************************/
+
+   GRF_tpCondRet GRF_DestruirVerticeCorrente( GRF_tppGrafo pCab );
+
+
+   /***********************************************************************
+*
+*  $FC Função: GRF  &Destruir Grafo
+*
+*  $ED Descrição da função
+*     Destroi o grafo
+*     
+*  $EP Parâmetros
+*     pCab       -ponteiro para uma cabeça de grafo
+*     *
+*  $FV Valor retornado
+*     GRF_CondRetOK   -Se executou corretamente
+*     GRF_CondRetGrafoVazio   -se o grafo estiver vazio 
+*     GRF_CondRetGrafoNaoExiste   -se o grafo não existe 
+*
+***********************************************************************/  
+
+   GRF_tpCondRet GRF_DestruirGrafo( GRF_tppGrafo pCab );
+
+
+   /***********************************************************************
+*
+*  $FC Função: GRF  &Ir Vertice
+*
+*  $ED Descrição da função
+*     Atualiza o elemento corrente do grafo com aquele cujo valor void 
+*     é igual ao valor passado como parâmetro
+*     
+*  $EP Parâmetros
+*     pCab		    - ponteiro para uma cabeça de grafo
+*     pValor        - ponteiro void para um valor
+*   *     
+*  $FV Valor retornado
+*     GRF_CondRetOK   -Se executou corretamente
+*     GRF_CondRetGrafoVazio   -se o grafo estiver vazio 
+*     GRF_CondRetGrafoNaoExiste   -se o grafo não existe 
+*
+***********************************************************************/   
+
+   GRF_tpCondRet IrVertice ( GRF_tpGrafo * pCab, void * pValor );
+
+
+      /***********************************************************************
+*
+*  $FC Função: GRF  &Criar Vertice
+*
+*  $ED Descrição da função
+*     Cria um vértice do grafo
+*     
+*  $EP Parâmetros
+*     pCab		    - ponteiro para uma cabeça de grafo
+*     pValor        - ponteiro void para um valor
+*     ExcluirValor  - ponteiro para a função que processa a
+*                     exclusão do valor referenciado pelo elemento
+*                     a ser excluído.
+*                     Ver descrição do módulo.
+*       
+*  $FV Valor retornado
+*     GRF_CondRetOK   -Se executou corretamente
+*     GRF_CondRetGrafoVazio   -se o grafo estiver vazio 
+*     GRF_CondRetGrafoNaoExiste   -se o grafo não existe 
+*
+***********************************************************************/ 
+
+   GRF_tpCondRet GRF_CriarVertice( GRF_tppGrafo pCab, void * pValor,  void   ( * ExcluirValor ) ( void * pDado ));
+
+
+     /***********************************************************************
+*
+*  $FC Função: GRF  &Criar Aresta
+*
+*  $ED Descrição da função
+*     Cria uma aresta no grafo
+*     
+*  $EP Parâmetros
+*     pCab		    - ponteiro para uma cabeça de grafo
+*     pValor        - ponteiro void para um valor
+*    
+*  $FV Valor retornado
+*     GRF_CondRetOK   -Se executou corretamente
+*     GRF_CondRetValorRepetido   -se já existir uma aresta cujo valor seja o mesmo que o do parâmetro pValor     
+*     GRF_CondRetGrafoVazio   -se o grafo estiver vazio 
+*     GRF_CondRetGrafoNaoExiste   -se o grafo não existe 
+*
+***********************************************************************/ 
+
+   GRF_tpCondRet GRF_CriarAresta ( GRF_tppGrafo pCab, void * pValor );
+
+
+    /***********************************************************************
+*
+*  $FC Função: GRF  &Obter Corrente
+*
+*  $ED Descrição da função
+*     Função que retorna o endereço do elemento corrente do grafo.
+*     
+*  $EP Parâmetros
+*     pCab		    - ponteiro para uma cabeça de grafo
+*    
+*  $FV Valor retornado
+*     Retorna o endereço do elemento corrente do grafo.
+*
+***********************************************************************/ 
+   void * GRF_ObterCorrente( GRF_tppGrafo pCab );
 
 
 #undef GRAFO_EXT
