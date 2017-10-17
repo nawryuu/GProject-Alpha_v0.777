@@ -9,10 +9,11 @@
 *
 *  Projeto: INF 1301 / 1628 Automatização dos testes de módulos C
 *  Gestor:  LES/DI/PUC-Rio
-*  Autores: avs
+*  Autores: gsa, tap
 *
 *  $HA Histórico de evolução:
 *     Versão  Autor    Data     Observações
+*     4       tap   16/out/2017  Correções
 *     3       gsa   15/out/2017
 *     2       tap   15/out/2017 
 *     1       avs   16/abr/2003 início desenvolvimento
@@ -23,23 +24,24 @@
 #include    <stdio.h>
 #include    <malloc.h>
 
-#include    "TST_Espc.h"
+#include    "TST_ESPC.h"
 
-#include    "Generico.h"
-#include    "LerParm.h"
+#include    "GENERICO.h"
+#include    "LERPARM.h"
 
+#include    "LISTA.h"
 #include    "GRAFO2.h"
 
 
-static const char RESET_GRAFO_CMD                 [ ] = "=resetteste"     ;//
-static const char CRIAR_GRAFO_CMD                 [ ] = "=criargrafo"     ;//
-static const char DESTRUIR_GRAFO_CMD              [ ] = "=destruirgrafo"  ;//
-static const char CRIAR_VERTICE_CMD               [ ] = "=criarvertice"   ;//
-static const char CRIAR_ARESTA_CMD                [ ] = "=criararesta"    ;//
+static const char RESET_GRAFO_CMD                 [ ] = "=resetteste"     ;
+static const char CRIAR_GRAFO_CMD                 [ ] = "=criargrafo"     ;
+static const char DESTRUIR_GRAFO_CMD              [ ] = "=destruirgrafo"  ;
+static const char CRIAR_VERTICE_CMD               [ ] = "=criarvertice"   ;
+static const char CRIAR_ARESTA_CMD                [ ] = "=criararesta"    ;
 static const char OBTER_CORRENTE_CMD              [ ] = "=obtercorrente"  ;
-static const char DESTRUIR_ARESTA_CMD             [ ] = "=destruiraresta" ;//
-static const char DESTRUIR_VERTICE_CORRENTE_CMD   [ ] = "=destruirvertice";//
-//ir vertice
+static const char DESTRUIR_ARESTA_CMD             [ ] = "=destruiraresta" ;
+static const char DESTRUIR_VERTICE_CORRENTE_CMD   [ ] = "=destruirvertice";
+static const char IR_VERTICE_CMD				  [ ] = "=irvertice"      ;
 
 #define TRUE  1
 #define FALSE 0
@@ -63,25 +65,23 @@ GRF_tppGrafo   vtGrafos[ DIM_VT_GRAFO ] ;
 
 /***********************************************************************
 *
-*  $FC Função: TLIS &Testar lista
+*  $FC Função: TLIS &Testar grafo
 *
 *  $ED Descrição da função
-*     Podem ser criadas até 10 listas, identificadas pelos índices 0 a 10
+*     Podem ser criadas até 10 grafos, identificadas pelos índices 0 a 10
 *
 *     Comandos disponíveis:
 *
 *     =resetteste
 *           - anula o vetor de grafos. Provoca vazamento de memória
 *     =criargrafo                   inxGrafo
-*     =destruirgrafo                inxGrafo
-*     =esvaziargrafo                inxGrafo
-*     =inselemantes                 inxGrafo  string  CondRetEsp
-*     =inselemapos                  inxGrafo  string  CondRetEsp
-*     =obtervalorelem               inxGrafo  string  CondretPonteiro
-*     =excluirelem                  inxGrafo  CondRetEsp
-*     =irinicio                     inxGrafo
-*     =irfinal                      inxGrafo
-*     =avancarelem                  inxGrafo  numElem CondRetEsp
+*     =destruirgrafo                inxGrafo  CondRetEsp 
+*     =criarvertice                 inxGrafo  string  CondRetEsp
+*     =criararesta                  inxGrafo  string  CondRetEsp
+*     =obtercorrente                inxGrafo  
+*     =destruiraresta               inxGrafo  string  CondRetEsp
+*     =destruirvértice              inxGrafo  CondRetEsp
+*     =irvertice                    inxGrafo string CondretPonteiro     
 *
 ***********************************************************************/
 
@@ -128,7 +128,7 @@ GRF_tppGrafo   vtGrafos[ DIM_VT_GRAFO ] ;
                        &inxGrafo ) ;
 
             if ( ( numLidos != 1 )
-              || ( ! ValidarInxLista( inxGrafo , VAZIO )))
+              || ( ! ValidarInxGrafo( inxGrafo , VAZIO )))
             {
                return TST_CondRetParm ;
             } /* if */
@@ -137,7 +137,7 @@ GRF_tppGrafo   vtGrafos[ DIM_VT_GRAFO ] ;
                  GRF_CriarGrafo( DestruirValor ) ;
 
             return TST_CompararPonteiroNulo( 1 , vtGrafos[ inxGrafo ] ,
-               "Erro em ponteiro de nova lista."  ) ;
+               "Erro em ponteiro de novo grafo."  ) ;
 
          } /* fim ativa: Testar CriarGrafo */
 		     
@@ -150,7 +150,7 @@ GRF_tppGrafo   vtGrafos[ DIM_VT_GRAFO ] ;
                                &inxGrafo ) ;
 
             if ( ( numLidos != 1 )
-              || ( ! ValidarInxLista( inxGrafo , NAO_VAZIO )))
+              || ( ! ValidarInxGrafo( inxGrafo , NAO_VAZIO )))
             {
                return TST_CondRetParm ;
             } /* if */
@@ -185,7 +185,7 @@ GRF_tppGrafo   vtGrafos[ DIM_VT_GRAFO ] ;
             strcpy( pDado , StringDado ) ;
 
 
-            CondRet = GRF_CriarVertice ( vtGrafos[ inxGrafo ] , pDado ) ;
+            CondRet = GRF_CriarVertice ( vtGrafos[ inxGrafo ] , pDado, DestruirValor ) ;
 
             if ( CondRet != GRF_CondRetOK )
             {
@@ -319,15 +319,47 @@ GRF_tppGrafo   vtGrafos[ DIM_VT_GRAFO ] ;
 
             return TST_CompararInt( CondRetEsp ,
                       GRF_DestruirVerticeCorrente( vtGrafos[ inxGrafo ] ) ,
-                     "Condição de retorno errada ao excluir."   ) ;
+                     "Condição de retorno errada ao destruir corrente."   ) ;
 
          } /* fim ativa: Testar excluir simbolo */
 
+		 else if ( strcmp( ComandoTeste , IR_VERTICE_CMD ) == 0 )
+		 {
+			 numLidos = LER_LerParametros( "isi" ,
+				 &inxGrafo , &CondRetEsp ) ;
+
+			 if ( ( numLidos != 3 )
+              || ( ! ValidarInxGrafo( inxGrafo , NAO_VAZIO )) )
+            {
+               return TST_CondRetParm ;
+            } /* if */
+
+			pDado = ( char * ) malloc( strlen( StringDado ) + 1 ) ;
+            if ( pDado == NULL )
+            {
+               return TST_CondRetMemoria ;
+            } /* if */
+
+            strcpy( pDado , StringDado ) ;
+
+			CondRet = GRF_IrVertice ( vtGrafos[ inxGrafo ] , pDado );
+
+			if ( CondRet != GRF_CondRetOK )
+            {
+               free( pDado ) ;
+            } /* if */
+
+            return TST_CompararInt( CondRetEsp , CondRet ,
+                     "Condicao de retorno errada ao ir para o vertice"                   ) ;
+
+
+
+		 } /* fim ativa: Testar Ir Vertice */
           
 	
       return TST_CondRetNaoConhec ;
 
-   } /* Fim função: TLIS &Testar lista */
+   } /* Fim função: TGRF &Testar lista */
 
 
 /*****  Código das funções encapsuladas no módulo  *****/
@@ -335,7 +367,7 @@ GRF_tppGrafo   vtGrafos[ DIM_VT_GRAFO ] ;
 
 /***********************************************************************
 *
-*  $FC Função: TLIS -Destruir valor
+*  $FC Função: TGRF -Destruir valor
 *
 ***********************************************************************/
 
@@ -344,12 +376,12 @@ GRF_tppGrafo   vtGrafos[ DIM_VT_GRAFO ] ;
 
       free( pValor ) ;
 
-   } /* Fim função: TLIS -Destruir valor */
+   } /* Fim função: TGRF -Destruir valor */
 
 
 /***********************************************************************
 *
-*  $FC Função: TLIS -Validar indice de lista
+*  $FC Função: TGRF -Validar indice de grafo
 *
 ***********************************************************************/
 
@@ -378,7 +410,7 @@ GRF_tppGrafo   vtGrafos[ DIM_VT_GRAFO ] ;
          
       return TRUE ;
 
-   } /* Fim função: TLIS -Validar indice de lista */
+   } /* Fim função: TGRF -Validar indice de grafo */
 
-/********** Fim do módulo de implementação: TLIS Teste lista de símbolos **********/
+/********** Fim do módulo de implementação: TGRF Teste grafo de símbolos **********/
 
