@@ -1,0 +1,65 @@
+// Script:    TesteGrafo.script
+// Autor:     Thiago Avidos Valle Pereira
+// Data:      16/10/2017
+// Propósito: Testar superficialmente o módulo grafo genérico
+//
+
+== Inicializar valores
+=declararparm   grafo0  int 0
+=declararparm   grafo1  int 1
+=declararparm   grafo2  int 2
+
+=declararparm   str0    string  "abcdefg"
+=declararparm   str1    string  "qwerty"
+=declararparm   str2    string  "xxx"
+=declararparm   str3    string  "xpto"
+
+=declararparm   OK              		int  0
+=declararparm   GrafoVazio      		int  1
+=declararparm   NaoAchou        		int  2
+=declararparm   FaltouMemoria   		int  3
+=declararparm   ValorRepetido   		int  4
+=declararparm   GrafoNaoExiste  		int  5
+=declararparm   NaoAchouGrafoElemLista  int  6
+=declararparm   GrafoListaVazia		    int  7
+
+=declararparm   pNULL          int  0
+=declararparm   pNaoNULL       int  1
+
+== Criar o grafo 0
+=criarlista      grafo0
+
+== Verificar ObterCorrente relativo a grafo vazio
+=obtercorrente  grafo0   "???"     pNULL
+
+== Criar vertice no grafo vazio
+=criarvertice    grafo0   str0   OK
+=obtercorrente   grafo0   str0   pNaoNULL
+
+== Criar segundo vertice no grafo
+=criarvertice     grafo0   str1   OK
+=obtercorrente    grafo0   str1   pNaoNULL
+
+== Criar terceiro vertice no grafo
+=criarvertice     grafo0   str2   OK
+=obtercorrente    grafo0   str2   pNaoNULL
+
+== Destruir o vertice corrente
+=obtercorrente  	 grafo0   str2   pNaoNULL
+=destruirvertice     grafo0   str2   OK
+
+== Destruir vertice corrente
+=obtercorrente  	 grafo0   str0   pNaoNULL
+=destruirvertice     grafo0   str0   OK
+
+== Destruir vertice corrente
+=obtercorrente  	 grafo0   str1   pNaoNULL
+=destruirvertice     grafo0   str1   OK
+
+== Ver se o grafo ficou vazio
+=obtercorrente  	 grafo0   "???"     pNULL
+
+== Destruir o grafo
+=destruirgrafo   grafo0
+
+// fim
