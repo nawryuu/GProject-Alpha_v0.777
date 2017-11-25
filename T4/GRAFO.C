@@ -299,8 +299,8 @@ typedef struct tagElemGrafo {
 	   while( ((tpElemGrafo*)LIS_ObterValor(pCab->pOrigemGrafo))->pVertice != pValor )
 	   {		     
 		   Resultado = LIS_AvancarElementoCorrente( pCab->pOrigemGrafo,1) ;
-	       if( Resultado == LIS_CondRetFimLista )
-		   {
+	       if( Resultado == LIS_CondRetFimLista && ((tpElemGrafo*)LIS_ObterValor(pCab->pOrigemGrafo))->pVertice != pValor  )
+		   {			  
 			    return GRF_CondRetNaoAchou ;
 		   } /* if */
 
@@ -415,6 +415,6 @@ typedef struct tagElemGrafo {
            return NULL ;
        } /* if */
 
-      return pCab->pElemCorr ;
+	   return pCab->pElemCorr->pVertice ;
 
    } /* Fim função: GRF  &Obter referência para o vértice contido na lista Vértices */
