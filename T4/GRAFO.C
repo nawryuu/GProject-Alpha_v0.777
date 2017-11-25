@@ -44,7 +44,7 @@
 #undef LISTA_OWN
 
 #define GRAFO_OWN
-#include "GRAFO2.h"
+#include "GRAFO.h"
 #undef GRAFO_OWN
 
 
@@ -299,8 +299,8 @@ typedef struct tagElemGrafo {
 	   while( ((tpElemGrafo*)LIS_ObterValor(pCab->pOrigemGrafo))->pVertice != pValor )
 	   {		     
 		   Resultado = LIS_AvancarElementoCorrente( pCab->pOrigemGrafo,1) ;
-	       if( Resultado == LIS_CondRetFimLista && ((tpElemGrafo*)LIS_ObterValor(pCab->pOrigemGrafo))->pVertice != pValor  )
-		   {			  
+	       if( Resultado == LIS_CondRetFimLista )
+		   {
 			    return GRF_CondRetNaoAchou ;
 		   } /* if */
 
@@ -361,6 +361,10 @@ typedef struct tagElemGrafo {
   
      tpElemGrafo *Vertice1 ;
      tpElemGrafo *Vertice2 ;
+
+	 void * salvaValor;
+
+	 salvaValor = pCab->pElemCorr->pVertice;
   
      if ( pCab == NULL || pCab->pElemCorr == NULL ) 
 	 {
@@ -393,6 +397,8 @@ typedef struct tagElemGrafo {
       LIS_InserirElementoApos( Vertice1->pAresta, Vertice2 ) ; 
       LIS_InserirElementoApos( Vertice2->pAresta, Vertice1 ) ; 
  
+	  GRF_IrVertice (pCab, salvaValor);
+
       return GRF_CondRetOK ;
 
  }
@@ -418,3 +424,24 @@ typedef struct tagElemGrafo {
 	   return pCab->pElemCorr->pVertice ;
 
    } /* Fim função: GRF  &Obter referência para o vértice contido na lista Vértices */
+
+   LIS_tppLista GRF_ObterListaArestas( GRF_tppGrafo pCab ) {
+
+	   #ifdef _DEBUG
+           assert( pCab != NULL ) ;
+       #endif
+
+	   return pCab->pElemCorr->pAresta ;
+
+
+   }
+
+   void * GRF_ObterValorAresta( LIS_tppLista pLis ) {
+
+	   #ifdef _DEBUG
+           assert( pLis != NULL ) ;
+       #endif
+
+	   return ((tpElemGrafo*)LIS_ObterValor(pLis))->pVertice;
+
+   }
