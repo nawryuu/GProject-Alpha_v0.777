@@ -9,7 +9,7 @@
 *  Letras identificadoras:      PRF
 *
 *  Nome da base de software:    Arcabouço para a automação de testes de programas redigidos em C
-*  Arquivo da base de software: D:\AUTOTEST\PROJETOS\LISTA.BSW
+*  Arquivo da base de software: D:\AUTOTEST\PROJETOS\PERFIL.BSW
 *
 *  Projeto: INF 1301 Implementação de um Grafo Genérico
 *  Gestor:  INF 1301 PUC-Rio
@@ -145,7 +145,7 @@ typedef struct PRF_tagPerfil * PRF_tppPerfil ;
 *
 ***********************************************************************/
 
-   char * PRF_ObterEmail ( GRF_tppGrafo pCab ) ;
+   char * PRF_ObterEmailCorrente ( GRF_tppGrafo pCab ) ;
 
 
    
@@ -168,7 +168,7 @@ typedef struct PRF_tagPerfil * PRF_tppPerfil ;
 *
 ***********************************************************************/
 
-   char * PRF_ObterNome ( GRF_tppGrafo pCab ) ;
+   char * PRF_ObterNomeCorrente ( GRF_tppGrafo pCab ) ;
 
 
        /***********************************************************************
@@ -187,11 +187,34 @@ typedef struct PRF_tagPerfil * PRF_tppPerfil ;
 *
 *  $FV Valor retornado
 *     NULL          - corrente não possui sobrenome, erro
-*     !NULL         - endereço do sobrenome retornado
+*     pNaoNULL         - endereço do sobrenome retornado
 *
 ***********************************************************************/
 
-   char * PRF_ObterSobrenome ( GRF_tppGrafo pCab ) ;
+   char * PRF_ObterSobrenomeCorrente ( GRF_tppGrafo pCab ) ;
+
+
+          /***********************************************************************
+*
+*  $FC Função: PRF  &Obter senha
+*
+*  $ED Descrição da função
+*     Obtém a senha do perfil que está salva no elemento corrente do grafo
+*     Retorna um endereço para o a senha do perfil corrente.
+*
+*  $EP Parâmetros
+*     pCab  		- ponteiro para a cabeça do grafo da rede de 
+*					  relacionamentos onde o perfil será criado.
+*
+*     
+*
+*  $FV Valor retornado
+*     NULL          - corrente não possui sobrenome, erro
+*     pNaoNULL         - endereço do sobrenome retornado
+*
+***********************************************************************/
+
+   char * PRF_ObterSenhaCorrente ( GRF_tppGrafo pCab ) ;
 
 
     /***********************************************************************
@@ -208,12 +231,12 @@ typedef struct PRF_tagPerfil * PRF_tppPerfil ;
 *     
 *
 *  $FV Valor retornado
-*     NULL          - corrente não possui sobrenome, erro
-*     !NULL         - endereço do sobrenome retornado
+*     1         - perfis iguais
+*     0         - perfis diferentes
 *
 ***********************************************************************/
 
-
+   int ComparaPerfil( void * pDado1, void * pDado2 ) ;
 
 #undef PERFIL_EXT
 
